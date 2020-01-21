@@ -11,7 +11,9 @@ Pygame base template for opening a window, done with functions
 import pygame
 import constants
 import spritesheetFunctions
-import character
+from character import Player
+
+
 
 def main():
     """ Main function for the game. """
@@ -22,31 +24,58 @@ def main():
     screen = pygame.display.set_mode([constants.screenWidth, constants.screenHeight])
  
     pygame.display.set_caption("Donkey Kong Country")
- 
+
+    # Create the player
+    player = Player()
+    
+    # Create Sprite Group
+    allSpritesList = pygame.sprite.Group()
+
+    # Add player sprite to list of all sprites
+    allSpritesList.add(player)
+
+    player.rect.x = 350
+    player.rect.y = 450
+
+
     # Loop until the user clicks the close button.
     done = False
  
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
 
-    # Create the player
-    player = Player()
-
-    # Create sprite groups
-    allSpriteList = pygame.sprite.Group()
-
-    # Add sprite to spriteList
-    allSpriteList.add(player)
- 
     # -------- Main Program Loop -----------
     while not done:
         # ALL EVENT PROCESSING SHOULD GO BELOW THIS COMMENT
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 done = True
+            # If user presses a key down
+            elif event.type == pygame.KEYDOWN:
+                # Figure what key it was, adjust change_x
+                if event.key == pygame.K_RIGHT:
+                    player.goRight()
+                if event.key == pygame.K_LEFT:
+                    player.goLeft()
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                player.punch()
+            
+            # If user lets up a key
+            elif event.type == pygame.KEYUP:
+                # If an arrow key, reset vector
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                    player.stop()
+                
+        
+
+
+        
+
         # ALL EVENT PROCESSING SHOULD GO ABOVE THIS COMMENT
  
         # ALL GAME LOGIC SHOULD GO BELOW THIS COMMENT
+        allSpritesList.update()
  
         # ALL GAME LOGIC SHOULD GO ABOVE THIS COMMENT
  
@@ -55,7 +84,8 @@ def main():
         # First, clear the screen to white. Don't put other drawing commands
         # above this, or they will be erased with this command.
         screen.fill(constants.WHITE)
-        allSpriteList.draw()
+        allSpritesList.draw(screen)
+
 
         
  
