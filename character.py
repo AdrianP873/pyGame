@@ -7,8 +7,6 @@ from spritesheetFunctions import SpriteSheet
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-
-        # -- ATTRIBUTES
         # Set speed vectors
         self.changeX = 0
         self.changeY = 0
@@ -18,7 +16,11 @@ class Player(pygame.sprite.Sprite):
         self.walkingFramesR = []
 
         # List to hold punch animation
-        self.punchFrames = []
+        self.punchFramesR = []
+        self.punchFramesL = []
+ 
+        # Initilize list to hold spin sprites
+        self.spinFrames = []
 
         # What direction is player facing?
         self.direction = "R"
@@ -39,32 +41,80 @@ class Player(pygame.sprite.Sprite):
 
         # Add sprites to list containing sprites walking right
         for item in image:
+            item = pygame.transform.scale2x(item)
             self.walkingFramesR.append(item)
                  
         # Loop through all sprites, flip them to face left, add to list for walking left
         for item in image:
             item = pygame.transform.flip(item, True, False)
+            item = pygame.transform.scale2x(item)
             self.walkingFramesL.append(item)
 
-
-        # Punch 1 Sprites
+        # Punch Right Sprites. Duplicated to slow down animation.
         punchImage = [spriteSheet.getImage(30, 712, 42, 45),
+                      spriteSheet.getImage(30, 712, 42, 45),
+                      spriteSheet.getImage(78, 713, 41, 44),
                       spriteSheet.getImage(78, 713, 41, 44),
                       spriteSheet.getImage(130, 713, 40, 44),
+                      spriteSheet.getImage(130, 713, 40, 44),
+                      spriteSheet.getImage(189, 712, 54, 43),
                       spriteSheet.getImage(189, 712, 54, 43),
                       spriteSheet.getImage(252, 712, 52, 43),
+                      spriteSheet.getImage(252, 712, 52, 43),
+                      spriteSheet.getImage(321, 712, 52, 43),
                       spriteSheet.getImage(321, 712, 52, 43),
                       spriteSheet.getImage(391, 712, 52, 43),
-                      spriteSheet.getImage(462, 715, 39, 42)]
-
-        for item in punchImage:
-            self.punchFrames.append(item)
+                      spriteSheet.getImage(391, 712, 52, 43),
+                      spriteSheet.getImage(462, 715, 39, 42),
+                      spriteSheet.getImage(462, 715, 39, 42)
+                      ]
 
         # Information for for punch sprites
         self.action = "P0"
         self.actionFrame = 0
         self.actionFrameMax = len(punchImage)
 
+        # Add punch right sprites to list
+        for item in punchImage:
+            item = pygame.transform.scale2x(item)
+            self.punchFramesR.append(item)
+
+        # Flip punch sprites and add to punch left list
+        for item in punchImage:
+            item = pygame.transform.flip(item, True, False)
+            item = pygame.transform.scale2x(item)
+            self.punchFramesL.append(item)
+
+        spinImage = [spriteSheet.getImage(600, 2086, 33, 44),
+                     spriteSheet.getImage(600, 2086, 33, 44),
+                     spriteSheet.getImage(645, 2085, 52, 45),
+                     spriteSheet.getImage(645, 2085, 52, 45),
+                     spriteSheet.getImage(710, 2082, 66, 47),
+                     spriteSheet.getImage(710, 2082, 66, 47),
+                     spriteSheet.getImage(780, 2082, 65, 47),
+                     spriteSheet.getImage(780, 2082, 65, 47),
+                     spriteSheet.getImage(855, 2082, 64, 47),
+                     spriteSheet.getImage(855, 2082, 64, 47),
+                     spriteSheet.getImage(933, 2082, 64, 47),
+                     spriteSheet.getImage(933, 2082, 64, 47),
+                     spriteSheet.getImage(1007, 2082, 65, 47),
+                     spriteSheet.getImage(1007, 2082, 65, 47),
+                     spriteSheet.getImage(1076, 2082, 66, 47),
+                     spriteSheet.getImage(1076, 2082, 66, 47),
+                     spriteSheet.getImage(1206, 2083, 33, 44),
+                     spriteSheet.getImage(1206, 2083, 33, 44)
+                    ]
+
+        # Information for spin sprites
+        self.spinAction = "S0"
+        self.spinFrame = 0
+        self.spinFrameMax = len(spinImage)
+
+        for item in spinImage:
+            item = pygame.transform.scale2x(item)
+            self.spinFrames.append(item)
+
+       
         # Set the image the player starts with
         self.image = self.walkingFramesR[0]
 
@@ -74,11 +124,15 @@ class Player(pygame.sprite.Sprite):
     def punch(self):
         # Change players action
         self.action = "P1"
+
+    def spin(self):
+        self.spinAction = "S1"
             
     def update(self):
         # This function gets called 60 times per second in our main game.
         # Move left / right
         self.rect.x += self.changeX
+        self.rect.y += self.changeY
         pos = self.rect.x
 
         # Change sprites to use depending on which direction player is facing
@@ -88,35 +142,60 @@ class Player(pygame.sprite.Sprite):
         elif self.direction == "L":
             frame = (pos // 30) % len(self.walkingFramesL)
             self.image = self.walkingFramesL[frame]
-        
-        # Change image to punching animations
-        if self.action == "P1":
+
+        # Change to punch animation
+        if self.action == "P1" and self.direction == "R":
             self.actionFrame += 1
             if self.actionFrame == self.actionFrameMax:
                 self.action = "P0"
                 self.actionFrame = 0
-            self.image = self.punchFrames[actionFrame]
+            self.image = self.punchFramesR[self.actionFrame]        
+        if self.action == "P1" and self.direction == "L":
+            self.actionFrame += 1
+            if self.actionFrame == self.actionFrameMax:
+                self.action = "P0"
+                self.actionFrame = 0
+            self.image = self.punchFramesL[self.actionFrame]
 
+        # Change to spin animation
+        if self.spinAction == "S1":
+            self.spinFrame += 1
+            if self.spinFrame == self.spinFrameMax:
+                self.spinAction = "S0"
+                self.spinFrame = 0
+            self.image = self.spinFrames[self.spinFrame]
             
     def goLeft(self):
-        self.changeX = -3
+        self.changeX = -4
         self.direction = "L"
+        self.action = "P0"
 
     def goRight(self):
-        self.changeX = 3
+        self.changeX = 4
         self.direction = "R"
+        self.action = "P0"
+
+    def goDown(self):
+        self.changeY = 4
+
+    def goUp(self):
+        self.changeY = -4
 
     def stop(self):
         # Call this when the user lets up a key
         self.changeX = 0
+        self.changeY = 0
 
     
+
+
+        
+
     
 
 
 
 
-    # play punch sound
 
     #def slam():
 
@@ -125,10 +204,7 @@ class Player(pygame.sprite.Sprite):
 
 
 
-       
-
-   # def attack(self):
-        # To be complete. The self here allows this method to reference attributes
+      
 
 
 

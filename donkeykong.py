@@ -7,7 +7,6 @@ Pygame base template for opening a window, done with functions
  http://simpson.edu/computer-science/
  
 """
- 
 import pygame
 import constants
 import spritesheetFunctions
@@ -53,19 +52,28 @@ def main():
             # If user presses a key down
             elif event.type == pygame.KEYDOWN:
                 # Figure what key it was, adjust change_x
-                if event.key == pygame.K_RIGHT:
+                if event.key == pygame.K_d:
                     player.goRight()
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     player.goLeft()
+                if event.key == pygame.K_w:
+                    player.goUp()
+                if event.key == pygame.K_s:
+                    player.goDown()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                player.punch()
+                mousePressed = pygame.mouse.get_pressed()
+                if mousePressed[0]:
+                    player.punch()
+                elif mousePressed[2]:
+                    player.spin()
             
             # If user lets up a key
             elif event.type == pygame.KEYUP:
                 # If an arrow key, reset vector
-                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                if event.key == pygame.K_d or event.key == pygame.K_a or event.key == pygame.K_w or event.key == pygame.K_s:
                     player.stop()
+                
                 
         
 
@@ -75,6 +83,12 @@ def main():
         # ALL EVENT PROCESSING SHOULD GO ABOVE THIS COMMENT
  
         # ALL GAME LOGIC SHOULD GO BELOW THIS COMMENT
+        if player.rect.x >= 740:
+            player.rect.x = 740
+        elif player.rect.x <= 20:
+            player.rect.x = 20
+
+
         allSpritesList.update()
  
         # ALL GAME LOGIC SHOULD GO ABOVE THIS COMMENT
