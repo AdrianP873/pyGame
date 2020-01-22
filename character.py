@@ -13,8 +13,6 @@ class Player(pygame.sprite.Sprite):
         self.changeX = 0
         self.changeY = 0
         
-        
-
         # This holds all images for the animated walk left/right of our player
         self.walkingFramesL = []
         self.walkingFramesR = []
@@ -62,6 +60,10 @@ class Player(pygame.sprite.Sprite):
         for item in punchImage:
             self.punchFrames.append(item)
 
+        # Information for for punch sprites
+        self.action = "P0"
+        self.actionFrame = 0
+        self.actionFrameMax = len(punchImage)
 
         # Set the image the player starts with
         self.image = self.walkingFramesR[0]
@@ -69,25 +71,33 @@ class Player(pygame.sprite.Sprite):
         # Set a reference to the image rect. This allows you to set rect.x and rect.y which is the location of the sprite
         self.rect = self.image.get_rect()
     
-
-
+    def punch(self):
+        # Change players action
+        self.action = "P1"
+            
     def update(self):
+        # This function gets called 60 times per second in our main game.
         # Move left / right
         self.rect.x += self.changeX
         pos = self.rect.x
 
+        # Change sprites to use depending on which direction player is facing
         if self.direction == "R":
             frame = (pos // 30) % len(self.walkingFramesR)
             self.image = self.walkingFramesR[frame]
         elif self.direction == "L":
             frame = (pos // 30) % len(self.walkingFramesL)
             self.image = self.walkingFramesL[frame]
-        elif self.direction == "P":
-            frame = (pos // 30) % len(self.punchFrames)
-            self.image = self.punchFrames[frame]
+        
+        # Change image to punching animations
+        if self.action == "P1":
+            self.actionFrame += 1
+            if self.actionFrame == self.actionFrameMax:
+                self.action = "P0"
+                self.actionFrame = 0
+            self.image = self.punchFrames[actionFrame]
+
             
-
-
     def goLeft(self):
         self.changeX = -3
         self.direction = "L"
@@ -100,14 +110,10 @@ class Player(pygame.sprite.Sprite):
         # Call this when the user lets up a key
         self.changeX = 0
 
-    def punch(self):
-        self.direction = "P"
-
-        self.test = True
+    
+    
 
 
-        #for item in self.punchFrames:
-        #    self.image = self.punchFrames[item]
 
 
     # play punch sound
